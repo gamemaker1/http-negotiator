@@ -1,61 +1,68 @@
 # HTTP Negotiator
 
-A HTTP content negotiator for V that allows you to parse the `Accept` header of an HTTP request and get the preferred response mime type specified by the client.
+A HTTP content negotiator for V that allows you to parse the `Accept` header of an HTTP request and get the preferred response media type specified by the client.
 
-## Usage
+## Usage/Examples
+
+First, download the library:
+
+```
+v install gamemaker1.http_negotiator
+```
+
+Then use it:
 
 ```v
-// Example with VWeb
-
-module main
-
-// Imports
-import vweb
+// Import the library
 import gamemaker1.http_negotiator
 
-pub struct App {
-	vweb.Context
-}
+// You need to get this value from the request object
+// In this case, since it is an example, this value is hard-coded
+// This value in an `Accept` HTTP header means that the client would like a
+// response:
+// - in the `application/json` format first
+// - if that's not available, give it in the `text/plain` format
+// - if that's not available, we're fine with anything
+// The `q` paramter stands for `quality`, which indicates how much the client
+// favours that response media type (0 is least, 1 is most; default is 1).
+accept_header_value := 'application/json;charset=utf-8, text/plain;q=0.9;charset=utf-8, text/html;q=0.8;charset=utf-8, */*;q=0.7'
+// Which media types you (the server) can respond in
+possible_media_types := ['text/html', 'application/json']
 
-[get]
-['/names']
-pub fn (mut app App) get_names_of_languages() vweb.Result {
-	// Check what format the client wants the response in
-	preferred_media_type := http_negotiator.get_media_type(
-		// The `Accept` header passed by the client; defaults to '*/*', which means anything is fine
-		app.req.header.get(.accept) or { '*/*' },
-		// Valid media types that you are willing to respond in (in order of preference)
-		['text/plain', 'text/html', 'application/json'],
-	) or {
-		// If there is no valid media type OR a media type provided by the client
-		// is an invalid one, use 'text/html' by default
-		'text/html'
-	}
+// Now the library allows you to get:
+// 1. a list of response media types in order of client's preference
+// 2. the most preferred media type that the client wants
 
-	// Return the list of languages in various formats
-	match preferred_media_type {
-		'text/plain' {
-			return app.text('V, Go, Oberon, Rust, Swift, Kotlin, and Python')
-		}
-		'text/html' {
-			return app.html('<ul><li>V</li> <li>Go</li> <li>Oberon</li> <li>Rust</li> <li>Swift</li> <li>Kotlin</li> <li>Python</li></ul>')
-		}
-		'application/json' {
-			return app.json('{"languages":["V", "Go", "Oberon", "Rust", "Swift", "Kotlin", "Python"]}')
-		}
-		else {
-			// NOTE: Should not happen (the `or` block above should set the preferred
-			// media type to `text/html` in case any error occurs)
-			app.set_status(406, 'Not Acceptable')
-			return app.ok('Invalid response media type $preferred_media_type specified in `Accept` header')
-		}
-	}
-}
+// For 1:
+preferred_media_types := http_negotiator.get_media_types(
+	// The `Accept` header passed by the client
+	accept_header_value,
+	// Valid media types that you can respond in
+	possible_media_types
+) or {
+	// If:
+	// - none of the client's accepted media types can be provided by the server
+	// - a media type provided by the client is an invalid one
+	// Then: use 'application/xml' by default
+	'application/xml'
+} // Returns ['application/json', 'text/html']
 
-fn main() {
-	vweb.run<App>(App{}, 8000)
-}
+// For 2:
+preferred_media_type := http_negotiator.get_media_type(
+	// The `Accept` header passed by the client
+	accept_header_value,
+	// Valid media types that you can respond in
+	possible_media_types
+) or {
+	// If:
+	// - none of the client's accepted media types can be provided by the server
+	// - a media type provided by the client is an invalid one
+	// Then: use 'application/xml' by default
+	'application/xml'
+} // Returns 'application/json'
 ```
+
+An example with VWeb can be found in [`example.v`](/example.v)
 
 ## Issues/Contributing
 

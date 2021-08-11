@@ -15,13 +15,17 @@ pub struct App {
 pub fn (mut app App) get_names_of_languages() vweb.Result {
 	// Check what format the client wants the response in
 	preferred_media_type := http_negotiator.get_media_type(
-		// The `Accept` header passed by the client; defaults to '*/*', which means anything is fine
+		// The `Accept` header passed by the client; defaults to '*/*' when the
+		// header is not provided, which means anything is fine
 		app.req.header.get(.accept) or { '*/*' },
-		// Valid media types that you are willing to respond in (in order of preference)
+		// Valid media types that you are willing to respond in (in order of your
+		// preference)
 		['text/plain', 'text/html', 'application/json'],
 	) or {
-		// If there is no valid media type OR a media type provided by the client
-		// is an invalid one, use 'text/html' by default
+		// If:
+		// - none of the client's accepted media types can be provided by the server
+		// - a media type provided by the client is an invalid one
+		// Then: use 'text/html' by default
 		'text/html'
 	}
 
