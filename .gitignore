@@ -2,3 +2,6 @@
 *.so
 *.dylib
 *.dll
+
+# Build output
+dist

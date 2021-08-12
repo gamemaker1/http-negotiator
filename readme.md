@@ -62,7 +62,7 @@ preferred_media_type := http_negotiator.get_media_type(
 } // Returns 'application/json'
 ```
 
-An example with VWeb can be found in [`example.v`](/example.v)
+An example with VWeb can be found in [`examples/vweb.v`](/examples/vweb.v)
 
 ## Issues/Contributing
 
