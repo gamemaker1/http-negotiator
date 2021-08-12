@@ -106,7 +106,7 @@ pub fn get_media_types(accept_header_value string, preferred_types []string) ?[]
 	// First parse the header
 	mut parsed_media_types := parse_accept_header(accept_header_value)?
 
-	// Check if any of the parsed types is */* OR the returned array is empty
+	// Check if the first parsed types is */* OR the returned array is empty
 	if parsed_media_types.len == 0 || '*/*' == parsed_media_types.map(it.get_full_type())[0] {
 		return preferred_types
 	}
