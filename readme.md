@@ -7,7 +7,7 @@ A HTTP content negotiator for V that allows you to parse the `Accept` header of 
 First, download the library:
 
 ```
-v install gamemaker1.http_negotiator
+v install --git https://github.com/gamemaker1/http-negotiator
 ```
 
 Then use it:
